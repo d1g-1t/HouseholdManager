@@ -38,7 +38,11 @@ INSTALLED_APPS = [
 ]
 
 if DEBUG:
-    INSTALLED_APPS += ["debug_toolbar"]
+    try:
+        import debug_toolbar
+        INSTALLED_APPS += ["debug_toolbar"]
+    except ImportError:
+        pass
 
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
@@ -55,7 +59,11 @@ MIDDLEWARE = [
 ]
 
 if DEBUG:
-    MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+    try:
+        import debug_toolbar
+        MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+    except ImportError:
+        pass
 
 ROOT_URLCONF = "household_manager.urls"
 

@@ -167,7 +167,7 @@ echo [94mStarting Docker project setup...[0m
 call :create-env
 call :docker-build
 call :docker-up
-timeout /t 5 /nobreak >nul
+call :docker-wait
 call :docker-migrate
 call :docker-superuser-prompt
 call :docker-setup-complete
@@ -183,6 +183,21 @@ exit /b 0
 echo [94mStarting Docker services...[0m
 docker-compose up -d
 echo [92m✓ Docker services started.[0m
+exit /b 0
+
+:docker-wait
+echo [94mWaiting for services to be healthy...[0m
+set /a timeout=60
+:docker-wait-loop
+docker-compose ps | findstr /C:"healthy" >nul 2>nul
+if %ERRORLEVEL% EQU 0 (
+    echo [92m✓ Services are healthy.[0m
+    exit /b 0
+)
+timeout /t 2 /nobreak >nul
+set /a timeout-=2
+if %timeout% GTR 0 goto docker-wait-loop
+echo [93mWarning: Timeout waiting for services. Proceeding anyway...[0m
 exit /b 0
 
 :docker-migrate

@@ -41,8 +41,19 @@ docker-up:
 	@echo "Services started."
 
 docker-wait:
-	@echo "Waiting for database..."
-	@sleep 5
+	@echo "Waiting for services to be healthy..."
+	@timeout=60; \
+	while [ $$timeout -gt 0 ]; do \
+		if $(DOCKER_COMPOSE) ps | grep -q "healthy"; then \
+			echo "Services are healthy."; \
+			break; \
+		fi; \
+		sleep 2; \
+		timeout=$$((timeout - 2)); \
+	done; \
+	if [ $$timeout -le 0 ]; then \
+		echo "Warning: Timeout waiting for services. Proceeding anyway..."; \
+	fi
 
 docker-migrate:
 	@echo "Running migrations..."

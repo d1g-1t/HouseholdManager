@@ -40,9 +40,8 @@ services:
       dockerfile: Dockerfile
     container_name: household_web
     command: >
-      sh -c "python manage.py migrate --noinput &&
-             python manage.py collectstatic --noinput &&
-             python manage.py runserver 0.0.0.0:8000"
+      sh -c "python manage.py collectstatic --noinput &&
+             daphne -b 0.0.0.0 -p 8000 household_manager.asgi:application"
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
@@ -124,6 +123,9 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      web:
+        condition: service_started
+    restart: on-failure
     networks:
       - household_network
 
